@@ -1,9 +1,14 @@
+# pickup day (packing + pickup)
+# move day (leaving the city)
+# delivery day (day delivers to storage/day to long term?)
+
+
 # Milestone 1
 # from agent
 # to employee
 # Actions:
 # ===========
-# 1. agent asks employee's delivery address and pickup address, asks employee if they need box, agent asks employee if they need help packing, agent 
+# 1. agent asks employee's delivery address and pickup address, pickup date, asks employee if they need box, agent asks employee if they need help packing, agent 
 
 # Milestone 2
 # Actions
@@ -11,7 +16,7 @@
 # from agent
 # to vendor
 # 1. send employee name, phone number, email address
-# 2. send pickup address and delivery address
+# 2. send pickup address and delivery address, pickup date
 # Actions
 # ============
 # from vendor
@@ -62,14 +67,40 @@
 # 1. signed paper works and done
 
 # TODO
-# who determines whether they need storage? 
+
+# Questions
+# who determines whether they need storage? depends on whether we have a final address
+# need acknowledgement from employee
+
 # is it employee determines if they need storage? 
 # is it depenpds on situation? when the shipment arrives and whether employee has a short term rental?
 
-# what kind of notification do we get when employee is done with survey?
-# what kind of notification do we get when employee is done with paperworks? 
+# what kind of notification do we get when employee is done with survey? (send through gullie)
+# what kind of notification do we get when employee is done with paperworks? (send through gullie)
+
+=============
 
 # is it possible to ask multiple vendors for quotes? if yes, at what step it comes in? 
-# is the same survey being used by all vendors?
+# is the same survey being used by all vendors? 
+
+# for now: just one vendor
+
+=============
 
 # move date is different with service date? move date is Jan 5th but shipment pick up happens at Jan 3rd? 
+# 
+
+
+# setups evals
+# a mock mock-xxx-company.gullie.agent email
+# a mock vendor email account
+# a mock employee email account
+
+# tests cases
+# fake emails
+# fake personal info
+
+# milestone 1
+# milestone 2
+# milsetone 3
+# milestone 4
