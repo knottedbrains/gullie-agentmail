@@ -13,6 +13,9 @@ ENV/
 credentials.json
 token.json
 
+# State management
+state.json
+
 # Environment variables
 .env
 

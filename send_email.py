@@ -22,7 +22,10 @@ from openai import OpenAI
 
 
 # Gmail API scopes
-SCOPES = ['https://www.googleapis.com/auth/gmail.send']
+SCOPES = [
+    'https://www.googleapis.com/auth/gmail.send',
+    'https://www.googleapis.com/auth/gmail.readonly'
+]
 
 
 def get_credentials():
@@ -33,18 +36,35 @@ def get_credentials():
     
     # Load existing token
     if os.path.exists(token_file):
-        creds = Credentials.from_authorized_user_file(token_file, SCOPES)
+        try:
+            creds = Credentials.from_authorized_user_file(token_file, SCOPES)
+            # Check if the token has all required scopes
+            if creds and creds.valid:
+                token_scopes = set(creds.scopes or [])
+                required_scopes = set(SCOPES)
+                if not required_scopes.issubset(token_scopes):
+                    print("⚠️  Token missing required scopes. Re-authorizing...")
+                    creds = None  # Force re-authorization
+        except Exception as e:
+            print(f"⚠️  Error loading token: {e}. Re-authorizing...")
+            creds = None
     
     # If there are no (valid) credentials available, let the user log in
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+            try:
+                creds.refresh(Request())
+            except Exception:
+                # If refresh fails, re-authorize
+                creds = None
+        
+        if not creds or not creds.valid:
             if not os.path.exists(credentials_file):
                 print(f"Error: {credentials_file} not found!")
                 print("Please download it from Google Cloud Console.")
                 sys.exit(1)
             
+            print("🔐 Authorizing application...")
             flow = InstalledAppFlow.from_client_secrets_file(
                 credentials_file, SCOPES)
             creds = flow.run_local_server(port=0)
@@ -187,12 +207,16 @@ def summarize_email_content(content: Dict, client: OpenAI) -> str:
 
     response = client.responses.create(
         model="gpt-4o-mini",
-        input=prompt,
-        temperature=0.2
+        input=prompt
     )
 
-    summary_text = response.output[0].content[0].text
-    return summary_text.strip()
+    # Extract summary from response
+    # Response structure: response.output[0].content[0].text
+    try:
+        summary_text = response.output[0].content[0].text
+        return summary_text.strip()
+    except (AttributeError, IndexError, KeyError) as e:
+        raise ValueError(f"Unable to extract text from OpenAI response: {e}")
 
 
 def summarize_latest_email(service):
@@ -203,7 +227,10 @@ def summarize_latest_email(service):
 
     try:
         api_key = load_openai_api_key()
-        client = OpenAI(api_key=api_key)
+        # Set API key via environment variable if not already set
+        if not os.getenv('OPENAI_API_KEY'):
+            os.environ['OPENAI_API_KEY'] = api_key
+        client = OpenAI()
     except ValueError as exc:
         print(f"❌ {exc}")
         sys.exit(1)

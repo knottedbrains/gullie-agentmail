@@ -1,0 +1,75 @@
+# Milestone 1
+# from agent
+# to employee
+# Actions:
+# ===========
+# 1. agent asks employee's delivery address and pickup address, asks employee if they need box, agent asks employee if they need help packing, agent 
+
+# Milestone 2
+# Actions
+# ============
+# from agent
+# to vendor
+# 1. send employee name, phone number, email address
+# 2. send pickup address and delivery address
+# Actions
+# ============
+# from vendor
+# to agent
+# 1. wait for survey link
+# ============
+# from agent
+# to employee
+# 1. send survey link
+# ============
+# from ?
+# to agent
+# 1. done survey
+
+# Milestone 3
+# Actions
+# ============
+# from vendor
+# to agent
+# 1. send a quote
+# ============
+# from agent
+# to employee
+# 1. send the quote
+# ============
+# from employee
+# to agent
+# 1. wait for response
+# if approve
+# if not approve, either reject or with questions, human step in
+
+# Milestone 4
+# Actions
+# from agent
+# to vendor
+# 1. approve the quote and tell them to start service
+# =============
+# from vendor
+# to agent
+# 1. wait for paper works to arrive
+# =============
+# from agent
+# to employee
+# 1. send paper works
+# =============
+# from employee
+# to agent
+# 1. signed paper works and done
+
+# TODO
+# who determines whether they need storage? 
+# is it employee determines if they need storage? 
+# is it depenpds on situation? when the shipment arrives and whether employee has a short term rental?
+
+# what kind of notification do we get when employee is done with survey?
+# what kind of notification do we get when employee is done with paperworks? 
+
+# is it possible to ask multiple vendors for quotes? if yes, at what step it comes in? 
+# is the same survey being used by all vendors?
+
+# move date is different with service date? move date is Jan 5th but shipment pick up happens at Jan 3rd? 
