@@ -1,6 +1,6 @@
 # gullie-agentmail
 
-A Gmail agent that sends emails automatically.
+A Gmail agent that can send emails and summarize the latest inbox message.
 
 ## Quick Start
 
@@ -23,6 +23,7 @@ A Gmail agent that sends emails automatically.
    - Enable the Gmail API
    - Create OAuth 2.0 credentials (Desktop app)
    - Download the credentials JSON file and save it as `credentials.json` in the project root
+   - (Optional) Add your OpenAI API key inside the file under `openai_api_key` or set the `OPENAI_API_KEY` environment variable
 
 3. **Run the agent:**
    ```bash
@@ -39,20 +40,36 @@ A Gmail agent that sends emails automatically.
 
 ### Usage
 
-The agent will send an email with the subject "Hello from Gullie Agent" and the body "hello from jolie" to the specified recipient.
+- **Send email (default):**
+  ```bash
+  python send_email.py --action send recipient@example.com
+  ```
+  Sends the template email with subject "Hello from Gullie Agent" and body "hello from jolie".
+
+- **Summarize the latest inbox email:**
+  ```bash
+  python send_email.py --action summarize
+  ```
+  Fetches the most recent email in your Gmail inbox and produces a concise summary using OpenAI.
+
+> `credentials.json` (and the generated `token.json`) must never be committed to Git. Keep them private and distribute securely if others need to run the agent.
 
 ---
 
-## Parties Involved
+## System Overview
 
-- **Agent** (Gullie)
-- **Employee**
-- **Employer**
-- **Vendors**
+### Parties Involved
+
+- **Agent** (Gullie) - The automated email agent
+- **Employee** - The person requesting moving services
+- **Employer** - The company providing the moving benefit
+- **Vendors** - Moving service providers
 
 ## What Agents Need to Know
 
 ### Knowledge Base
+
+The agent maintains information about:
 
 - **Vendors Available**
   - Name
@@ -60,14 +77,13 @@ The agent will send an email with the subject "Hello from Gullie Agent" and the 
   - Service providing
   - Contact info
   - Payment method
+  - Price
 - **What needs to be sent to employees**
 - **What needs to be sent to vendors**
 
-### Employer
+### Employer Information
 
 - Budget
-
-### Employee
 
 #### Personal Info
 - First name
@@ -80,16 +96,21 @@ The agent will send an email with the subject "Hello from Gullie Agent" and the 
 - Moving from
 - Moving to
 - Moving date
+
+
+### Employee Information
+
+#### Moving Details
 - **Details**
   - What to be moved: survey link
-  - Insurance
-  - Box?
-  - Need help packing?
+  - Insurance tier
+  - Do we need Box?
+  - Do we need help packing?
 
 #### Approval
 - Accept/Decline
 
-### Vendor
+### Vendor Information
 
 - Quotes
 - Finalized dates
