@@ -78,17 +78,15 @@
 # what kind of notification do we get when employee is done with survey? (send through gullie)
 # what kind of notification do we get when employee is done with paperworks? (send through gullie)
 
-=============
 
 # is it possible to ask multiple vendors for quotes? if yes, at what step it comes in? 
 # is the same survey being used by all vendors? 
 
 # for now: just one vendor
 
-=============
-
 # move date is different with service date? move date is Jan 5th but shipment pick up happens at Jan 3rd? 
-# 
+
+=============
 
 
 # setups evals
@@ -104,3 +102,84 @@
 # milestone 2
 # milsetone 3
 # milestone 4
+
+
+# tests/evals
+
+# layers in tests
+# state transitions -> unit tests
+
+email in -> 3 state transitions happening(1->2->3) -> email out
+
+units tests(implementation): 
+testing 1->2 
+2-3
+
+left most spectrum: dump everything into LLM, give all tools, no orchestration on inividual agent level
+# shipping: 
+# orchestratin within shipping agent to facilitate the workflow
+# max flexibility
+
+
+right most spectrum: having everything hardcoded, if, else logic
+
+
+e2e/integration tests
+expected email out given email in
+if email out matches expected
+{
+    email_in: {},
+    email_out: {},
+}
+
+context:
+employer: "cluely"
+employee: "jolie"
+agent: "gullie",
+vendor: "cend",
+
+
+
+email: {
+    "from": "cluely",
+    "to": "gullie",
+    "title": "move initiation",
+    "content": "Hey can u help us move 3 employees from sf to ny, budget 10k each, here are their details
+        first name: jolie
+        last name: ni
+        phone number: xxx
+        email: xxxx
+    ",
+}
+
+email: {
+    "from": "gullie",
+    "to": "jolie",
+    "title": "reaching out for your move",
+    "content": "hey reaching out to you for your move initiated by cluely, can I get the following details from you
+    pickup address, destination address, need box for moving and whether need help packing? 
+    "
+}
+
+email: {
+    "from": "jolie",
+    "to": "gullie"
+    "title": "re: reaching out for your move",
+    "content": "hey here are infos you are asking for"
+}
+
+email: {
+    "from": "gullie",
+    "to": "cend",
+    "title": "requesting quote for move",
+    "content": "hey can i get a quote for this move, here are the details"
+}
+
+email: {
+    "from": "cend",
+    "to": "gullie",
+    "title": "re: requesting quote for move",
+    "content": "here is the price xxxxx"
+}
+
+

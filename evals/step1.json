@@ -1,0 +1,86 @@
+{
+  "test-1": {
+    "input": {
+      "from": "cluely@gmail.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Requesting move for an employee from SF to NYC",
+      "body": "Hey Gullie,\n\nWe would like to move one employee from SF to NYC. We have a budget of 10k for her move.\nHere is her contact info:\nFirst name: jolie\nLast name: ni\nphone number: 415-572-0542\nemail: ninan980805@gmail.com\n\nBest,\nCluely Team"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "ninan980805@gmail.com",
+      "subject": "Requesting Details for your move from SF to NYC",
+      "body": "Hey Jolie,\n\nWe are Gullie, your relocation assistant. We received your relocation request from Cluely and will be manageing your moving logistics.\nTo better assit your move, can you provide those informations for shipping your personal goods?\n1. pickup address\n2. pickup date\n3. destination address(if don't provide, your belongs will be held at a storage unit, it will incur additional charges)\n4. do you need moving boxes?\n5. do you need help packing? (additional charges)\n6. your consent to purchase insurance for this shipping\n\nBest,\nGullie Agent"
+    }
+  },
+  "test-2": {
+    "input": {
+      "from": "cluely@gmail.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Requesting move for an employee from Los Angeles to Seattle",
+      "body": "Hi Gullie,\n\nWe need to relocate an employee from Los Angeles, CA to Seattle, WA. Our budget for this move is $15,000.\nEmployee contact information:\nFirst name: Michael\nLast name: Chen\nphone number: 310-555-1234\nemail: michael.chen@example.com\n\nThanks,\nCluely Team"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "michael.chen@example.com",
+      "subject": "Requesting Details for your move from Los Angeles to Seattle",
+      "body": "Hey Michael,\n\nWe are Gullie, your relocation assistant. We received your relocation request from Cluely and will be manageing your moving logistics.\nTo better assit your move, can you provide those informations for shipping your personal goods?\n1. pickup address\n2. pickup date\n3. destination address(if don't provide, your belongs will be held at a storage unit, it will incur additional charges)\n4. do you need moving boxes?\n5. do you need help packing? (additional charges)\n6. your consent to purchase insurance for this shipping\n\nBest,\nGullie Agent"
+    }
+  },
+  "test-3": {
+    "input": {
+      "from": "cluely@gmail.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Requesting move for an employee from Chicago to Austin",
+      "body": "Hello Gullie,\n\nWe have an employee relocating from Chicago, IL to Austin, TX. Budget allocated: $8,500.\nContact details:\nFirst name: Sarah\nLast name: Johnson\nphone number: 312-555-9876\nemail: sarah.johnson@example.com\n\nRegards,\nCluely Team"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "sarah.johnson@example.com",
+      "subject": "Requesting Details for your move from Chicago to Austin",
+      "body": "Hey Sarah,\n\nWe are Gullie, your relocation assistant. We received your relocation request from Cluely and will be manageing your moving logistics.\nTo better assit your move, can you provide those informations for shipping your personal goods?\n1. pickup address\n2. pickup date\n3. destination address(if don't provide, your belongs will be held at a storage unit, it will incur additional charges)\n4. do you need moving boxes?\n5. do you need help packing? (additional charges)\n6. your consent to purchase insurance for this shipping\n\nBest,\nGullie Agent"
+    }
+  },
+  "test-4": {
+    "input": {
+      "from": "cluely@gmail.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Requesting move for an employee from Boston to Miami",
+      "body": "Dear Gullie,\n\nPlease assist with relocating an employee from Boston, MA to Miami, FL. The relocation budget is $12,000.\nEmployee information:\nFirst name: David\nLast name: Rodriguez\nphone number: 617-555-4567\nemail: david.rodriguez@example.com\n\nBest regards,\nCluely Team"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "david.rodriguez@example.com",
+      "subject": "Requesting Details for your move from Boston to Miami",
+      "body": "Hey David,\n\nWe are Gullie, your relocation assistant. We received your relocation request from Cluely and will be manageing your moving logistics.\nTo better assit your move, can you provide those informations for shipping your personal goods?\n1. pickup address\n2. pickup date\n3. destination address(if don't provide, your belongs will be held at a storage unit, it will incur additional charges)\n4. do you need moving boxes?\n5. do you need help packing? (additional charges)\n6. your consent to purchase insurance for this shipping\n\nBest,\nGullie Agent"
+    }
+  },
+  "test-5": {
+    "input": {
+      "from": "cluely@gmail.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Requesting move for an employee from Denver to Portland",
+      "body": "Hi Gullie,\n\nWe need to move an employee from Denver, CO to Portland, OR. Budget: $9,500.\nHere are the details:\nFirst name: Emily\nLast name: Williams\nphone number: 303-555-7890\nemail: emily.williams@example.com\n\nThank you,\nCluely Team"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "emily.williams@example.com",
+      "subject": "Requesting Details for your move from Denver to Portland",
+      "body": "Hey Emily,\n\nWe are Gullie, your relocation assistant. We received your relocation request from Cluely and will be manageing your moving logistics.\nTo better assit your move, can you provide those informations for shipping your personal goods?\n1. pickup address\n2. pickup date\n3. destination address(if don't provide, your belongs will be held at a storage unit, it will incur additional charges)\n4. do you need moving boxes?\n5. do you need help packing? (additional charges)\n6. your consent to purchase insurance for this shipping\n\nBest,\nGullie Agent"
+    }
+  },
+  "test-6": {
+    "input": {
+      "from": "cluely@gmail.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Requesting move for an employee from Phoenix to Nashville",
+      "body": "Hello Gullie,\n\nEmployee relocation request: Phoenix, AZ to Nashville, TN. Allocated budget is $11,000.\nContact information:\nFirst name: James\nLast name: Anderson\nphone number: 480-555-2345\nemail: james.anderson@example.com\n\nSincerely,\nCluely Team"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "james.anderson@example.com",
+      "subject": "Requesting Details for your move from Phoenix to Nashville",
+      "body": "Hey James,\n\nWe are Gullie, your relocation assistant. We received your relocation request from Cluely and will be manageing your moving logistics.\nTo better assit your move, can you provide those informations for shipping your personal goods?\n1. pickup address\n2. pickup date\n3. destination address(if don't provide, your belongs will be held at a storage unit, it will incur additional charges)\n4. do you need moving boxes?\n5. do you need help packing? (additional charges)\n6. your consent to purchase insurance for this shipping\n\nBest,\nGullie Agent"
+    }
+  }
+}
