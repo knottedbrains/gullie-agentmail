@@ -1,0 +1,58 @@
+{
+  "test-1": {
+    "input": {
+      "from": "ninan980805@gmail.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Need help moving my furniture from SF to NYC",
+      "body": "Hi Gullie,\\n\\nI'm Jolie Ni and I need help shipping my furniture and personal items from San Francisco, CA to New York, NY. My email is ninan980805@gmail.com. Can we get started? Please let me know next steps.\\n\\nThanks,\\nJolie"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "New move - Request for virtual survey link",
+      "body": "Hi Jessica,\\n\\nWe have a new employee move and need a Yembo virtual survey link.\\nEmployee: Jolie Ni\\nEmail: ninan980805@gmail.com\\nRoute: San Francisco, CA -> New York, NY\\n\\nPlease send a fresh link we can forward so she can complete her apartment furniture inventory for quoting.\\n\\nThanks,\\nGullie Agent"
+    }
+  },
+  "test-2": {
+    "input": {
+      "from": "samir.patel@example.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Help shipping my household goods from Los Angeles to Seattle",
+      "body": "Hello Gullie,\\n\\nI'm Samir Patel and I need help moving my furniture and personal belongings from Los Angeles, CA to Seattle, WA. You can reach me at samir.patel@example.com. Can we start the process?\\n\\nThanks,\\nSamir"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "New move - Request for virtual survey link",
+      "body": "Hi Jessica,\\n\\nWe need a Yembo virtual survey link for a new move.\\nEmployee: Samir Patel\\nEmail: samir.patel@example.com\\nRoute: Los Angeles, CA -> Seattle, WA\\n\\nPlease send a new link we can share so he can log his apartment furniture for the quote.\\n\\nThank you,\\nGullie Agent"
+    }
+  },
+  "test-3": {
+    "input": {
+      "from": "annie.brooks@example.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Need assistance moving furniture from Chicago to Austin",
+      "body": "Hi Gullie,\\n\\nI'm Annie Brooks. I need assistance shipping my furniture and personal goods from Chicago, IL to Austin, TX. My contact email is annie.brooks@example.com. Please let me know how to get started.\\n\\nThank you!"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "New move - Request for virtual survey link",
+      "body": "Hello Jessica,\\n\\nRequesting a Yembo virtual survey link for a new move.\\nEmployee: Annie Brooks\\nEmail: annie.brooks@example.com\\nRoute: Chicago, IL -> Austin, TX\\n\\nPlease send a fresh link so she can complete the furniture estimate and we can proceed with quoting.\\n\\nAppreciate it,\\nGullie Agent"
+    }
+  },
+  "test-4": {
+    "input": {
+      "from": "diego.martinez@example.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Help with shipping my apartment furniture from Boston to Miami",
+      "body": "Hey Gullie,\\n\\nI'm Diego Martinez and I need help moving my apartment furniture and personal items from Boston, MA to Miami, FL. My email is diego.martinez@example.com. Can you guide me on next steps to start?\\n\\nRegards,\\nDiego"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "New move - Request for virtual survey link",
+      "body": "Hi Jessica,\\n\\nCould you send a Yembo virtual survey link for a new move?\\nEmployee: Diego Martinez\\nEmail: diego.martinez@example.com\\nRoute: Boston, MA -> Miami, FL\\n\\nWe'll forward it so he can complete his apartment furniture inventory for pricing.\\n\\nThanks for the quick help,\\nGullie Agent"
+    }
+  }
+}
