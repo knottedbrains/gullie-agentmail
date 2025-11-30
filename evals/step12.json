@@ -1,0 +1,58 @@
+{
+  "test-1": {
+    "input": {
+      "from": "ninan980805@gmail.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Final delivery address for my move",
+      "body": "Hi,\n\nMy final NYC address is 88 10th Ave, New York, NY 10011. Please update the delivery.\n\nThanks,\nJolie"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Update delivery address: Jolie Ni (SF -> NYC)",
+      "body": "Hi Jessica,\n\nPlease update Jolie Ni's delivery address to: 88 10th Ave, New York, NY 10011.\n- Employee: Jolie Ni | ninan980805@gmail.com | 415-572-0542\n- Pickup: 123 Market St, San Francisco, CA 94103\n\nConfirm the change and any impact to schedule.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-2": {
+    "input": {
+      "from": "samir.patel@example.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Updated delivery address",
+      "body": "Hello,\n\nPlease change my delivery address to 801 Pine St, Seattle, WA 98101.\n\nBest,\nSamir"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Update delivery address: Samir Patel (LA -> Seattle)",
+      "body": "Hi Jessica,\n\nUpdate Samir Patel's delivery address to: 801 Pine St, Seattle, WA 98101.\n- Employee: Samir Patel | samir.patel@example.com | 310-555-1234\n- Pickup: 842 S Olive St, Los Angeles, CA 90014\n\nPlease confirm the change.\n\nThank you,\nGullie Agent"
+    }
+  },
+  "test-3": {
+    "input": {
+      "from": "annie.brooks@example.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Final delivery address",
+      "body": "Hi,\n\nMy Austin delivery address should be 515 Congress Ave, Austin, TX 78701.\n\nThank you,\nAnnie"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Update delivery address: Annie Brooks (Chicago -> Austin)",
+      "body": "Hello Jessica,\n\nPlease update Annie Brooks' delivery address to: 515 Congress Ave, Austin, TX 78701.\n- Employee: Annie Brooks | annie.brooks@example.com | 312-555-9876\n- Pickup: 180 N Wacker Dr, Chicago, IL 60606\n\nConfirm receipt and any scheduling changes.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-4": {
+    "input": {
+      "from": "diego.martinez@example.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Delivery address change",
+      "body": "Hey,\n\nPlease update my Miami delivery to 1450 Brickell Ave, Miami, FL 33131.\n\nRegards,\nDiego"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Update delivery address: Diego Martinez (Boston -> Miami)",
+      "body": "Hi Jessica,\n\nUpdate Diego Martinez's delivery address to: 1450 Brickell Ave, Miami, FL 33131.\n- Employee: Diego Martinez | diego.martinez@example.com | 617-555-4567\n- Pickup: 77 Summer St, Boston, MA 02110\n\nPlease confirm the change.\n\nThanks,\nGullie Agent"
+    }
+  }
+}

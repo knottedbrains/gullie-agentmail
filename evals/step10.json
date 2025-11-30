@@ -1,0 +1,58 @@
+{
+  "test-1": {
+    "input": {
+      "from": "ninan980805@gmail.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Paperwork submitted",
+      "body": "Hi,\n\nI completed the paperwork at https://paperwork.cend.com/jolie and uploaded my ID.\n\nThanks,\nJolie"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Paperwork completed: Jolie Ni",
+      "body": "Hi Jessica,\n\nJolie Ni has completed her paperwork and ID upload: https://paperwork.cend.com/jolie.\n\nPlease confirm receipt and next steps.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-2": {
+    "input": {
+      "from": "samir.patel@example.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Completed forms",
+      "body": "Hello,\n\nI've submitted all paperwork at https://paperwork.cend.com/samir, including passport copy.\n\nBest,\nSamir"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Paperwork completed: Samir Patel",
+      "body": "Hi Jessica,\n\nSamir Patel submitted all required documents: https://paperwork.cend.com/samir (includes passport).\n\nPlease confirm receipt.\n\nThank you,\nGullie Agent"
+    }
+  },
+  "test-3": {
+    "input": {
+      "from": "annie.brooks@example.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Paperwork done",
+      "body": "Hi Gullie,\n\nI finished the forms and uploads at https://paperwork.cend.com/annie.\n\nThank you,\nAnnie"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Paperwork completed: Annie Brooks",
+      "body": "Hello Jessica,\n\nAnnie Brooks has completed her paperwork: https://paperwork.cend.com/annie.\n\nLet us know once processed.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-4": {
+    "input": {
+      "from": "diego.martinez@example.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Forms submitted",
+      "body": "Hey,\n\nI submitted all the forms and passport at https://paperwork.cend.com/diego.\n\nRegards,\nDiego"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Paperwork completed: Diego Martinez",
+      "body": "Hi Jessica,\n\nDiego Martinez completed his paperwork and uploads: https://paperwork.cend.com/diego.\n\nPlease confirm.\n\nThanks,\nGullie Agent"
+    }
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "test-1": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Quote ready for Jolie Ni (SF -> NYC)",
+      "body": "Quote summary: $7,800 base; packing +$650; boxes +$200; basic insurance included."
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "ninan980805@gmail.com",
+      "subject": "Your moving quote for SF to NYC",
+      "body": "Hi Jolie,\n\nHere is your quote for the San Francisco -> New York move:\n- Base move: $7,800 (load/haul/delivery)\n- Add-ons: packing +$650, boxes +$200\n- Insurance: basic included; upgraded options available on request\n\nDelivery address: If your NYC address isn't final yet, please share it to avoid storage. If goods arrive before we have it, your items will go into storage and storage charges will apply until you provide the address.\n\nPlease reply to approve or request changes, confirm your insurance choice, and confirm whether you want packing and boxes.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-2": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Quote ready for Samir Patel (LA -> Seattle)",
+      "body": "Quote summary: $5,950 base; packing +$400; upgraded insurance +$150; boxes included."
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "samir.patel@example.com",
+      "subject": "Your moving quote for LA to Seattle",
+      "body": "Hi Samir,\n\nQuote for your Los Angeles -> Seattle move:\n- Base move: $5,950 (boxes included)\n- Add-ons: packing +$400\n- Insurance: basic included; upgraded +$150\n\nDelivery address: If this isn't final yet, please provide it to avoid storage. If goods arrive before we have it, we'll place them in storage and storage charges will apply until you share the address.\n\nPlease reply to approve or request changes, confirm which insurance tier you want, and confirm whether you want packing (boxes are included).\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-3": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Quote ready for Annie Brooks (Chicago -> Austin)",
+      "body": "Quote summary: $6,400 base; packing +$500; boxes +$180; upgraded insurance +$120."
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "annie.brooks@example.com",
+      "subject": "Your moving quote for Chicago to Austin",
+      "body": "Hi Annie,\n\nYour quote for the Chicago -> Austin move:\n- Base move: $6,400\n- Add-ons: packing +$500; boxes +$180\n- Insurance: basic included; upgraded +$120\n\nDelivery address: If it's not final yet, share it to avoid storage. If goods arrive before we have it, your items will go into storage and storage charges will apply until you provide the address.\n\nPlease reply to approve or request changes, confirm your insurance choice, and confirm whether you want packing and boxes.\n\nThank you,\nGullie Agent"
+    }
+  },
+  "test-4": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Quote ready for Diego Martinez (Boston -> Miami)",
+      "body": "Quote summary: $7,100 base; packing +$550; boxes included; upgraded insurance +$140."
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "diego.martinez@example.com",
+      "subject": "Your moving quote for Boston to Miami",
+      "body": "Hi Diego,\n\nHere is your quote for the Boston -> Miami move:\n- Base move: $7,100 (boxes included)\n- Add-ons: packing +$550\n- Insurance: basic included; upgraded +$140\n\nDelivery address: If it's not final yet, please share it to avoid storage. If goods arrive before we have it, we'll place them in storage and storage charges will apply until you provide the address.\n\nPlease reply to approve or request changes, confirm your insurance choice, and confirm whether you want packing (boxes are included).\n\nThanks,\nGullie Agent"
+    }
+  }
+}

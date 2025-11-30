@@ -1,0 +1,58 @@
+{
+  "test-1": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Paperwork for Jolie Ni",
+      "body": "Hi,\n\nPlease have Jolie complete the attached paperwork (bill of lading, terms, ID upload). Link: https://paperwork.cend.com/jolie.\n\nThanks,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "ninan980805@gmail.com",
+      "subject": "Action needed: paperwork for your SF to NYC move",
+      "body": "Hi Jolie,\n\nPlease complete the required paperwork to start your move: https://paperwork.cend.com/jolie\nIncluded: bill of lading, terms, ID upload.\n\nOnce submitted, reply here so we can keep things moving.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-2": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Paperwork for Samir Patel",
+      "body": "Hello,\n\nPaperwork packet for Samir: https://paperwork.cend.com/samir (bill of lading, insurance selection, passport copy).\n\nRegards,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "samir.patel@example.com",
+      "subject": "Please complete your move paperwork (LA to Seattle)",
+      "body": "Hi Samir,\n\nComplete your paperwork here: https://paperwork.cend.com/samir\nIncludes bill of lading, insurance selection, passport copy upload.\n\nReply once done so we can confirm with the vendor.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-3": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Paperwork for Annie Brooks",
+      "body": "Hi team,\n\nPaperwork link for Annie Brooks: https://paperwork.cend.com/annie (bill of lading, visa proof, ID).\n\nThanks!\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "annie.brooks@example.com",
+      "subject": "Action needed: paperwork for your Chicago to Austin move",
+      "body": "Hi Annie,\n\nPlease finish your move paperwork here: https://paperwork.cend.com/annie\nForms: bill of lading, visa proof, ID upload.\n\nLet us know once it's submitted.\n\nThank you,\nGullie Agent"
+    }
+  },
+  "test-4": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Paperwork for Diego Martinez",
+      "body": "Hi,\n\nPaperwork for Diego: https://paperwork.cend.com/diego (bill of lading, passport, terms).\n\nBest,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "diego.martinez@example.com",
+      "subject": "Please complete your move paperwork (Boston to Miami)",
+      "body": "Hi Diego,\n\nComplete the required documents here: https://paperwork.cend.com/diego\nIncludes bill of lading, passport upload, and terms.\n\nReply once done so we can confirm with the vendor.\n\nThanks,\nGullie Agent"
+    }
+  }
+}

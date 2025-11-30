@@ -1,0 +1,58 @@
+{
+  "test-1": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Jolie Ni move scheduled",
+      "body": "Hi,\n\nJolie's move is confirmed for pickup Jan 10, 9am. Crew lead: Mark (555-201-3030). Delivery pending final address.\n\nThanks,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "ninan980805@gmail.com",
+      "subject": "Your move is confirmed (SF pickup Jan 10, 9am)",
+      "body": "Hi Jolie,\n\nYour move is confirmed.\n- Pickup: Jan 10 at 9:00 AM\n- Crew lead: Mark (555-201-3030)\n- Pickup address: 123 Market St, San Francisco, CA 94103\n- Delivery: NYC (final address TBD—please share once confirmed)\n\nReply with your final delivery address or any special instructions.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-2": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Samir Patel move confirmed",
+      "body": "Hello,\n\nSamir's move scheduled: pickup Feb 2, 8am. Crew lead Sarah (555-444-7788). Delivery to 500 Pine St, Seattle, WA.\n\nRegards,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "samir.patel@example.com",
+      "subject": "Your move is confirmed (LA pickup Feb 2, 8am)",
+      "body": "Hi Samir,\n\nYour move is set.\n- Pickup: Feb 2 at 8:00 AM\n- Crew lead: Sarah (555-444-7788)\n- Pickup address: 842 S Olive St, Los Angeles, CA 90014\n- Delivery address: 500 Pine St, Seattle, WA 98101\n\nIf anything changes, let us know.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-3": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Annie Brooks move confirmed",
+      "body": "Hi team,\n\nAnnie's move scheduled: pickup Jan 18, 10am. Crew lead Alex (555-662-4411). Delivery to 301 Congress Ave, Austin, TX.\n\nThanks!\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "annie.brooks@example.com",
+      "subject": "Your move is confirmed (Chicago pickup Jan 18, 10am)",
+      "body": "Hi Annie,\n\nYour move is confirmed.\n- Pickup: Jan 18 at 10:00 AM\n- Crew lead: Alex (555-662-4411)\n- Pickup address: 180 N Wacker Dr, Chicago, IL 60606\n- Delivery address: 301 Congress Ave, Austin, TX 78701\n\nIf you need any changes, reply here.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-4": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Diego Martinez move confirmed",
+      "body": "Hi,\n\nDiego's move scheduled: pickup Jan 25, 9:30am. Crew lead Nina (555-113-9900). Delivery to 1200 Brickell Ave, Miami, FL.\n\nBest,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "diego.martinez@example.com",
+      "subject": "Your move is confirmed (Boston pickup Jan 25, 9:30am)",
+      "body": "Hi Diego,\n\nYour move is confirmed.\n- Pickup: Jan 25 at 9:30 AM\n- Crew lead: Nina (555-113-9900)\n- Pickup address: 77 Summer St, Boston, MA 02110\n- Delivery address: 1200 Brickell Ave, Miami, FL 33131\n\nLet us know if you have special instructions.\n\nThanks,\nGullie Agent"
+    }
+  }
+}

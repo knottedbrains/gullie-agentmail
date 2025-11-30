@@ -1,0 +1,58 @@
+{
+  "test-1": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Virtual survey link for Jolie Ni",
+      "body": "Hi Gullie,\n\nHere's the Yembo link for Jolie Ni's SF to NYC move: https://survey.cend.com/jolie-nyc.\nPickup: 123 Market St, San Francisco, CA 94103\nDelivery: TBD (will update)\n\nThanks,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "ninan980805@gmail.com",
+      "subject": "Your virtual survey link for your SF to NYC move",
+      "body": "Hi Jolie,\n\nWe received your virtual survey link. Please complete it here: https://survey.cend.com/jolie-nyc\nRoute: San Francisco, CA -> New York, NY (delivery address pending; if you need storage, tell us).\n\nFill it out at your earliest convenience so we can finalize your quote.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-2": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Virtual survey link for Samir Patel",
+      "body": "Hello,\n\nHere's the Yembo survey link for Samir Patel: https://survey.cend.com/samir-la-sea.\nPickup: 842 S Olive St, Los Angeles, CA 90014\nDelivery: 500 Pine St, Seattle, WA 98101\n\nRegards,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "samir.patel@example.com",
+      "subject": "Your virtual survey link for your LA to Seattle move",
+      "body": "Hi Samir,\n\nWe have your virtual survey link. Please complete it here: https://survey.cend.com/samir-la-sea\nRoute: Los Angeles, CA -> Seattle, WA\n\nOnce finished, we'll lock your quote with the vendor.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-3": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Virtual survey link for Annie Brooks",
+      "body": "Hi team,\n\nYembo link for Annie Brooks' move: https://survey.cend.com/annie-chi-atx.\nPickup: 180 N Wacker Dr, Chicago, IL 60606\nDelivery: 301 Congress Ave, Austin, TX 78701\n\nThanks!\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "annie.brooks@example.com",
+      "subject": "Your virtual survey link for your Chicago to Austin move",
+      "body": "Hi Annie,\n\nPlease complete your virtual survey here: https://survey.cend.com/annie-chi-atx\nRoute: Chicago, IL -> Austin, TX\n\nThis lets us capture your furniture inventory and finalize your quote.\n\nThank you,\nGullie Agent"
+    }
+  },
+  "test-4": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Virtual survey link for Diego Martinez",
+      "body": "Hi,\n\nYembo link for Diego Martinez: https://survey.cend.com/diego-bos-mia.\nPickup: 77 Summer St, Boston, MA 02110\nDelivery: 1200 Brickell Ave, Miami, FL 33131\n\nBest,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "diego.martinez@example.com",
+      "subject": "Your virtual survey link for your Boston to Miami move",
+      "body": "Hi Diego,\n\nPlease fill out your virtual survey here: https://survey.cend.com/diego-bos-mia\nRoute: Boston, MA -> Miami, FL\n\nComplete it so we can get your final quote from the vendor.\n\nThanks,\nGullie Agent"
+    }
+  }
+}

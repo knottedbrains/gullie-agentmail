@@ -1,0 +1,58 @@
+{
+  "test-1": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Quote for Jolie Ni (SF to NYC)",
+      "body": "Hi,\n\nAttached is the quote for Jolie Ni's move SF -> NYC.\nPrice: $7,800\nIncludes: load/haul/delivery\nOptional: packing +$650, boxes +$200, basic insurance included.\n\nThanks,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Quote received for Jolie Ni (SF -> NYC)",
+      "body": "Hi Jessica,\n\nThanks for sending Jolie Ni's quote ($7,800; packing +$650; boxes +$200; basic insurance included). We'll review with her now and revert with approval or adjustments.\n\nThanks,\nGullie Agent"
+    }
+  },
+  "test-2": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Quote for Samir Patel (LA to Seattle)",
+      "body": "Hello,\n\nQuote for Samir Patel's LA -> Seattle move.\nPrice: $5,950\nIncludes: load/haul/delivery, boxes included\nOptional: packing +$400, upgraded insurance +$150.\n\nRegards,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Quote received for Samir Patel (LA -> Seattle)",
+      "body": "Hi Jessica,\n\nReceived Samir Patel's quote ($5,950; packing +$400; upgraded insurance +$150). We'll share with him now and confirm next steps.\n\nThank you,\nGullie Agent"
+    }
+  },
+  "test-3": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Quote for Annie Brooks (Chicago to Austin)",
+      "body": "Hi team,\n\nQuote for Annie Brooks' move: $6,400.\nIncludes: load/haul/delivery\nOptional: packing +$500, boxes +$180, upgraded insurance +$120.\n\nThanks!\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Quote received for Annie Brooks (Chicago -> Austin)",
+      "body": "Hi Jessica,\n\nThanks for Annie Brooks' quote ($6,400; packing +$500; boxes +$180; upgraded insurance +$120). We'll review with her and circle back with a decision.\n\nAppreciate it,\nGullie Agent"
+    }
+  },
+  "test-4": {
+    "input": {
+      "from": "jessica@cend.com",
+      "to": "gullie-agent@gmail.com",
+      "subject": "Quote for Diego Martinez (Boston to Miami)",
+      "body": "Hi,\n\nQuote for Diego Martinez's Boston -> Miami move.\nPrice: $7,100\nIncludes: load/haul/delivery, boxes included\nOptional: packing +$550, upgraded insurance +$140.\n\nBest,\nJessica"
+    },
+    "output": {
+      "from": "gullie-agent@gmail.com",
+      "to": "jessica@cend.com",
+      "subject": "Quote received for Diego Martinez (Boston -> Miami)",
+      "body": "Hi Jessica,\n\nConfirmed receipt of Diego Martinez's quote ($7,100; packing +$550; boxes included; upgraded insurance +$140). We'll present it to him and return with approval or changes.\n\nThanks,\nGullie Agent"
+    }
+  }
+}
