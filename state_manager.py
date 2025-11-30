@@ -52,6 +52,7 @@ class StateManager:
                 "status": "in_progress",
                 "data": {
                     "pickup_address": None,
+                    "pickup_date": None,
                     "delivery_address": None,
                     "needs_box": None,
                     "needs_packing_help": None,
@@ -122,6 +123,7 @@ class StateManager:
             milestone_data = case.get("milestone_1", {}).get("data", {})
             return all([
                 milestone_data.get("pickup_address") is not None,
+                milestone_data.get("pickup_date") is not None,
                 milestone_data.get("delivery_address") is not None,
                 milestone_data.get("needs_box") is not None,
                 milestone_data.get("needs_packing_help") is not None,

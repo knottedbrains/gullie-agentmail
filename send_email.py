@@ -112,13 +112,19 @@ def create_message(to, subject, body):
     return {'raw': raw_message}
 
 
-def send_message(service, user_id, message):
+# TODO: human in the loop
+def send_message(service, user_id, message, real_run = False):
     """Send an email message."""
     try:
-        message = service.users().messages().send(
-            userId=user_id, body=message).execute()
-        print(f'Message Id: {message["id"]}')
-        return message
+        if real_run:
+            message = service.users().messages().send(
+                userId=user_id, body=message).execute()
+            print(f'Message Id: {message["id"]}')
+            return message
+        else:
+            print(message)
+            return "Email sent(Dry Run)"
+        
     except HttpError as error:
         print(f'An error occurred: {error}')
         return None
@@ -157,6 +163,34 @@ def extract_plain_text(payload: Dict) -> str:
     return ""
 
 
+def fetch_email_by_id(service, message_id: str):
+    """Retrieve a specific email by message ID."""
+    try:
+        message = service.users().messages().get(
+            userId='me',
+            id=message_id,
+            format='full'
+        ).execute()
+
+        headers = message.get('payload', {}).get('headers', [])
+        header_map = {h['name'].lower(): h['value'] for h in headers}
+        subject = header_map.get('subject', '(No Subject)')
+        sender = header_map.get('from', '(Unknown Sender)')
+        snippet = message.get('snippet', '').strip()
+        body_text = extract_plain_text(message.get('payload', {}))
+
+        return {
+            'id': message_id,
+            'subject': subject,
+            'from': sender,
+            'snippet': snippet,
+            'body': body_text or snippet
+        }
+    except HttpError as error:
+        print(f'❌ Error fetching email {message_id}: {error}')
+        return None
+
+
 def fetch_latest_email(service):
     """Retrieve the most recent email from the user's inbox."""
     messages_response = service.users().messages().list(
@@ -171,26 +205,7 @@ def fetch_latest_email(service):
         return None
 
     message_id = messages[0]['id']
-    message = service.users().messages().get(
-        userId='me',
-        id=message_id,
-        format='full'
-    ).execute()
-
-    headers = message.get('payload', {}).get('headers', [])
-    header_map = {h['name'].lower(): h['value'] for h in headers}
-    subject = header_map.get('subject', '(No Subject)')
-    sender = header_map.get('from', '(Unknown Sender)')
-    snippet = message.get('snippet', '').strip()
-    body_text = extract_plain_text(message.get('payload', {}))
-
-    return {
-        'id': message_id,
-        'subject': subject,
-        'from': sender,
-        'snippet': snippet,
-        'body': body_text or snippet
-    }
+    return fetch_email_by_id(service, message_id)
 
 
 def summarize_email_content(content: Dict, client: OpenAI) -> str:

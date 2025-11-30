@@ -15,6 +15,7 @@ def get_milestone1_initial_request() -> tuple[str, str]:
 I'm Gullie, your moving service assistant. To help you with your move, I need to collect some information:
 
 1. **Pickup Address**: Where should we pick up your belongings?
+2. **Pickup Date**: When should we pick up your belongings?
 2. **Delivery Address**: Where should we deliver your belongings?
 3. **Boxes**: Do you need moving boxes?
 4. **Packing Help**: Do you need help with packing?
@@ -35,6 +36,7 @@ def get_milestone1_followup(missing_fields: List[str]) -> tuple[str, str]:
     # Create a friendly list of missing items
     field_descriptions = {
         "pickup_address": "pickup address",
+        "pickup_date": "pickup date",
         "delivery_address": "delivery address",
         "needs_box": "whether you need boxes",
         "needs_packing_help": "whether you need help with packing",
@@ -86,6 +88,7 @@ def get_clarification_request(unclear_field: str) -> tuple[str, str]:
     
     field_questions = {
         "pickup_address": "your pickup address",
+        "puckup_date": "your pickup date",
         "delivery_address": "your delivery address",
         "needs_box": "whether you need boxes (yes or no)",
         "needs_packing_help": "whether you need help with packing (yes or no)",

@@ -220,4 +220,70 @@ class EmailParser:
                     end = min(len(text), idx + len(keyword) + 100)
                     return text[start:end]
         return None
+    
+    def is_move_initiation_request(self, email_text: str) -> bool:
+        """Use LLM to determine if email is about initiating a move/relocation."""
+        prompt = (
+            "Determine if this email is a request to initiate a move or relocation for an employee. "
+            "Look for keywords like: move, relocate, relocation, employee moving, moving request, etc. "
+            "The email should be from an employer/company requesting moving services for an employee.\n\n"
+            f"Email text: {email_text[:2000]}\n\n"
+            "Respond with only 'yes' or 'no'."
+        )
+        
+        try:
+            response = self.client.responses.create(
+                model="gpt-4o-mini",
+                input=prompt
+            )
+            
+            result_text = response.output[0].content[0].text.strip().lower()
+            return 'yes' in result_text
+        except Exception as e:
+            print(f"⚠️  Error checking move initiation: {e}")
+            # Fallback: check for common keywords
+            text_lower = email_text.lower()
+            keywords = ['move', 'relocate', 'relocation', 'moving', 'employee move']
+            return any(keyword in text_lower for keyword in keywords)
+    
+    def extract_employee_email_from_request(self, email_text: str) -> Optional[str]:
+        """Extract employee email address from a move initiation request."""
+        # Look for email patterns in the text
+        email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+        emails = re.findall(email_pattern, email_text)
+        
+        # Filter out common sender emails (like cluely@gmail.com, gullie-agent@gmail.com)
+        excluded_domains = ['gullie-agent@gmail.com', 'cluely@gmail.com', 'gmail.com']
+        for email in emails:
+            email_lower = email.lower()
+            if not any(excluded in email_lower for excluded in excluded_domains):
+                # Use LLM to confirm this is the employee email
+                prompt = (
+                    f"From this move request email, identify the employee's email address. "
+                    f"The employee email should be mentioned in contact info section.\n\n"
+                    f"Email text: {email_text[:1500]}\n\n"
+                    f"Found emails: {', '.join(emails)}\n\n"
+                    "Respond with only the employee email address, or 'none' if not found."
+                )
+                
+                try:
+                    response = self.client.responses.create(
+                        model="gpt-4o-mini",
+                        input=prompt
+                    )
+                    
+                    result_text = response.output[0].content[0].text.strip()
+                    # Check if result is an email
+                    if '@' in result_text and result_text.lower() != 'none':
+                        return result_text.strip()
+                except Exception as e:
+                    print(f"⚠️  Error extracting employee email: {e}")
+        
+        # Fallback: return first non-excluded email
+        for email in emails:
+            email_lower = email.lower()
+            if not any(excluded in email_lower for excluded in excluded_domains):
+                return email
+        
+        return None
 
