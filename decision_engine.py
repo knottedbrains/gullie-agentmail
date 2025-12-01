@@ -31,6 +31,7 @@ class DecisionEngine:
         
         # Check if this is an initial request (no data collected yet)
         if all(v is None for v in data.values()):
+            print("milestone 1 action: send initial request")
             return {
                 "type": "send_initial_request",
                 "to": state["employee_email"],
@@ -39,15 +40,17 @@ class DecisionEngine:
         
         # Check if milestone is complete
         if self.check_milestone1_completion(state):
+            print("mileston1 completed.")
             return {
                 "type": "send_completion_confirmation",
                 "to": state["employee_email"],
                 "milestone": 1
             }
-        
+
         # Check for missing fields
         missing_fields = self.determine_missing_fields(state)
         if missing_fields:
+            print("missing fields" + str(missing_fields))
             return {
                 "type": "send_followup",
                 "to": state["employee_email"],
@@ -64,6 +67,7 @@ class DecisionEngine:
         
         required_fields = [
             "pickup_address",
+            "pickup_date",
             "delivery_address",
             "needs_box",
             "needs_packing_help",
@@ -79,6 +83,7 @@ class DecisionEngine:
         
         required_fields = [
             "pickup_address",
+            "pickup_date",
             "delivery_address",
             "needs_box",
             "needs_packing_help",

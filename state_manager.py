@@ -48,6 +48,8 @@ class StateManager:
         case = {
             "employee_email": employee_email,
             "current_milestone": 1,
+            "employee_thread_id": None,
+            "vendor_thread_id": None,
             "milestone_1": {
                 "status": "in_progress",
                 "data": {
@@ -106,6 +108,9 @@ class StateManager:
         milestone_key = f"milestone_{current}"
         if milestone_key in case:
             case[milestone_key]["status"] = "completed"
+            # Clear pending actions since milestone is complete
+            if "pending_actions" in case[milestone_key]:
+                case[milestone_key]["pending_actions"] = []
         
         # Advance to next milestone
         case["current_milestone"] = current + 1
@@ -144,6 +149,22 @@ class StateManager:
             case[milestone_key] = {"status": "in_progress", "data": {}, "pending_actions": []}
         
         case[milestone_key]["pending_actions"] = actions
+        case["last_updated"] = datetime.utcnow().isoformat()
+        self._save_state()
+    
+    def update_thread_id(self, employee_email: str, thread_type: str, thread_id: str):
+        """Update thread ID for employee or vendor."""
+        case = self.get_case(employee_email)
+        if not case:
+            raise ValueError(f"Case not found for employee: {employee_email}")
+        
+        if thread_type == "employee":
+            case["employee_thread_id"] = thread_id
+        elif thread_type == "vendor":
+            case["vendor_thread_id"] = thread_id
+        else:
+            raise ValueError(f"Invalid thread_type: {thread_type}. Must be 'employee' or 'vendor'")
+        
         case["last_updated"] = datetime.utcnow().isoformat()
         self._save_state()
     

@@ -10,17 +10,18 @@ from typing import Dict, Optional, Tuple, Any
 
 from openai import OpenAI
 
-from send_email import load_openai_api_key
+from send_email import load_openai_api_key, fetch_thread_messages, fetch_email_by_id
 
 
 class EmailParser:
     """Parses emails and extracts structured information using LLM."""
     
-    def __init__(self):
+    def __init__(self, gmail_service=None):
         api_key = load_openai_api_key()
         if not os.getenv('OPENAI_API_KEY'):
             os.environ['OPENAI_API_KEY'] = api_key
         self.client = OpenAI()
+        self.service = gmail_service  # Gmail service for fetching thread details
     
     def parse_email(self, email_dict: Dict) -> Dict[str, Any]:
         """Parse Gmail message format into structured data."""
@@ -52,14 +53,81 @@ class EmailParser:
         # In production, you'd maintain a list of known vendors
         return "employee"
     
-    def extract_addresses(self, text: str) -> Dict[str, Optional[str]]:
-        """Use LLM to extract pickup and delivery addresses from text."""
+    def extract_fields(self, text: str, context: str, fields: Optional[Dict[str, str]] = None) -> Dict[str, Optional[Any]]:
+        """Use LLM to extract fields from text based on context.
+        
+        The context determines what fields to look for, and the text provides the actual values.
+        
+        Args:
+            text: The text to extract field values from
+            context: Context that describes what fields/information we're looking for.
+                     This could be a conversation summary, milestone description, or field definitions.
+            fields: Optional explicit field definitions. If provided, these will be used.
+                    If None, fields will be inferred from the context.
+                    Example: {
+                        "pickup_address": "pickup address including street, city, state, zip",
+                        "pickup_date": "pickup date in YYYY-MM-DD format"
+                    }
+        
+        Returns:
+            Dictionary with extracted field values (None if not found)
+        """
+        if not context:
+            print("⚠️  No context provided for field extraction")
+            return {}
+        
+        # Step 1: Determine what fields to extract from context
+        if fields:
+            # Use explicitly provided fields
+            field_descriptions = []
+            for field_name, field_desc in fields.items():
+                field_descriptions.append(f"- '{field_name}': {field_desc}")
+            fields_list = "\n".join(field_descriptions)
+            field_names = list(fields.keys())
+        else:
+            # Infer fields from context
+            inference_prompt = (
+                f"Based on the following context, identify what specific fields or pieces of information "
+                f"need to be extracted from user responses. "
+                f"Return a JSON object where each key is a field name and each value is a description of what that field represents.\n\n"
+                f"Context:\n{context[:2000]}\n\n"
+                f"Example output format:\n"
+                f'{{"pickup_address": "pickup address including street, city, state, zip", "pickup_date": "pickup date"}}\n\n'
+                f"Only include fields that are relevant to the context. Return only valid JSON."
+            )
+            
+            try:
+                inference_response = self.client.responses.create(
+                    model="gpt-4o-mini",
+                    input=inference_prompt
+                )
+                
+                inference_text = inference_response.output[0].content[0].text.strip()
+                
+                # Extract JSON from inference response
+                json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', inference_text, re.DOTALL)
+                if json_match:
+                    fields = json.loads(json_match.group())
+                    field_names = list(fields.keys())
+                    field_descriptions = [f"- '{k}': {v}" for k, v in fields.items()]
+                    fields_list = "\n".join(field_descriptions)
+                    print(f"📋 Inferred {len(field_names)} fields from context: {', '.join(field_names)}")
+                else:
+                    print("⚠️  Could not infer fields from context, returning empty result")
+                    return {}
+            except Exception as e:
+                print(f"⚠️  Error inferring fields from context: {e}")
+                return {}
+        
+        # Step 2: Extract the field values from the text
         prompt = (
-            "Extract pickup and delivery addresses from the following text. "
-            "Return a JSON object with 'pickup_address' and 'delivery_address' keys. "
-            "If an address is not found, use null. "
-            "Addresses should be complete and include street, city, state, and zip code if available.\n\n"
-            f"Text: {text[:2000]}"
+            f"Extract the following fields from the text below. "
+            f"Return a JSON object with these exact keys: {', '.join(field_names)}.\n\n"
+            f"Fields to extract:\n{fields_list}\n\n"
+            f"Context (for reference):\n{context[:1000]}\n\n"
+            f"If a field is not found in the text, use null for that field.\n"
+            f"Be precise and extract only information that is explicitly mentioned or clearly implied in the text.\n\n"
+            f"Text to extract from:\n{text[:2000]}"
         )
         
         try:
@@ -71,17 +139,41 @@ class EmailParser:
             result_text = response.output[0].content[0].text.strip()
             
             # Try to extract JSON from the response
-            json_match = re.search(r'\{[^}]+\}', result_text, re.DOTALL)
+            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', result_text, re.DOTALL)
             if json_match:
                 result = json.loads(json_match.group())
-                return {
-                    "pickup_address": result.get("pickup_address"),
-                    "delivery_address": result.get("delivery_address")
-                }
+                # Return only the requested fields, with None for missing ones
+                return {field: result.get(field) for field in field_names}
+        except json.JSONDecodeError as e:
+            print(f"⚠️  Error parsing JSON from LLM response: {e}")
+            print(f"   Response text: {result_text[:200]}")
         except Exception as e:
-            print(f"⚠️  Error extracting addresses: {e}")
+            print(f"⚠️  Error extracting fields: {e}")
         
-        return {"pickup_address": None, "delivery_address": None}
+        # Return None for all fields if extraction failed
+        return {field: None for field in field_names}
+    
+    def extract_addresses_and_dates(self, text: str, context: str = "") -> Dict[str, Optional[str]]:
+        """Use LLM to extract pickup and delivery addresses from text.
+        
+        This is a convenience wrapper around extract_fields() for backward compatibility.
+        If context is provided, it will be used to infer fields. Otherwise, default fields are used.
+        """
+        # If context is provided, let it infer fields. Otherwise use default fields.
+        if context:
+            return self.extract_fields(text, context)
+        else:
+            # Default fields for backward compatibility
+            fields = {
+                "pickup_address": "pickup address including street, city, state, and zip code if available",
+                "pickup_date": "pickup date in YYYY-MM-DD format or any date format mentioned",
+                "delivery_address": "delivery address including street, city, state, and zip code if available",
+                "needs_box": "yes or no",
+                "needs_packing_help": "yes or no",
+                "insurance_opted_in": "yes or no"
+            }
+            
+            return self.extract_fields(text, "Extract pickup and delivery addresses and pickup date", fields)
     
     def extract_yes_no_response(self, text: str, question_type: str) -> Optional[bool]:
         """Extract boolean answer from text for yes/no questions."""
@@ -166,11 +258,64 @@ class EmailParser:
         except Exception as e:
             print(f"⚠️  Error extracting intent: {e}")
             return 'unknown'
+
+    def get_context_of_thread(self, thread_id: str) -> str:
+        """Get the context of a thread by fetching all messages and summarizing them.
+        
+        Args:
+            thread_id: Gmail thread ID to fetch and summarize
+            
+        Returns:
+            Summary of the thread conversation
+        """
+        if not self.service:
+            print("⚠️  Gmail service not available for fetching thread")
+            return ""
+        
+        # Fetch all messages in the thread
+        thread_messages = fetch_thread_messages(self.service, thread_id)
+        
+        if not thread_messages:
+            return ""
+        
+        # Build conversation context from all messages
+        conversation_parts = []
+        for msg in thread_messages:
+            # Get message details
+            msg_id = msg.get('id')
+            if msg_id:
+                msg_details = fetch_email_by_id(self.service, msg_id)
+                if msg_details:
+                    from_field = msg_details.get('from', 'Unknown')
+                    subject = msg_details.get('subject', 'No Subject')
+                    body = msg_details.get('body', '')[:500]  # Limit body length
+                    conversation_parts.append(f"From: {from_field}\nSubject: {subject}\nBody: {body}")
+        
+        conversation_text = "\n\n---\n\n".join(conversation_parts)
+        
+        prompt = (
+            "You are an expert in summarizing email threads. "
+            "Provide a concise summary of this email conversation thread, "
+            "highlighting the main topics, decisions made, and any action items.\n\n"
+            f"Email Thread:\n{conversation_text[:4000]}\n\n"
+            "Provide a clear, structured summary."
+        )
+        
+        try: 
+            response = self.client.responses.create(
+                model="gpt-4o-mini",
+                input=prompt
+            )
+            return response.output[0].content[0].text.strip()
+        except Exception as e:
+            print(f"⚠️  Error getting context of thread: {e}")
+            return ""
     
-    def extract_milestone1_data(self, text: str) -> Dict[str, any]:
+    def extract_milestone1_data(self, text: str, context: str) -> Dict[str, any]:
         """Extract all Milestone 1 data from email text."""
         result = {
             "pickup_address": None,
+            "pickup_date": None,
             "delivery_address": None,
             "needs_box": None,
             "needs_packing_help": None,
@@ -178,7 +323,7 @@ class EmailParser:
         }
         
         # Extract addresses
-        addresses = self.extract_addresses(text)
+        addresses = self.extract_addresses_and_dates(text, context)
         result.update(addresses)
         
         # Extract yes/no responses
@@ -244,6 +389,44 @@ class EmailParser:
             # Fallback: check for common keywords
             text_lower = email_text.lower()
             keywords = ['move', 'relocate', 'relocation', 'moving', 'employee move']
+            return any(keyword in text_lower for keyword in keywords)
+    
+    def is_relevant_to_shipping_moving(self, email_text: str, employee_email: Optional[str] = None, company_name: Optional[str] = None) -> bool:
+        """Use LLM to determine if email is relevant to shipping/moving for specific employee and company."""
+        context_parts = []
+        if employee_email:
+            context_parts.append(f"employee email: {employee_email}")
+        if company_name:
+            context_parts.append(f"company: {company_name}")
+        
+        context = "\n".join(context_parts) if context_parts else "general shipping/moving context"
+        
+        prompt = (
+            f"Determine if this email is relevant to shipping, moving, or relocation services. "
+            f"Context: {context}\n\n"
+            f"The email should be related to:\n"
+            f"- Moving or shipping services\n"
+            f"- Relocation requests\n"
+            f"- Moving logistics\n"
+            f"- Shipping quotes or updates\n"
+            f"- Moving-related communications\n\n"
+            f"Email text: {email_text[:2000]}\n\n"
+            f"Respond with only 'yes' if relevant, or 'no' if not relevant."
+        )
+        
+        try:
+            response = self.client.responses.create(
+                model="gpt-4o-mini",
+                input=prompt
+            )
+            
+            result_text = response.output[0].content[0].text.strip().lower()
+            return 'yes' in result_text
+        except Exception as e:
+            print(f"⚠️  Error checking email relevance: {e}")
+            # Fallback: check for common keywords
+            text_lower = email_text.lower()
+            keywords = ['move', 'relocate', 'relocation', 'moving', 'shipping', 'shipment', 'delivery', 'pickup']
             return any(keyword in text_lower for keyword in keywords)
     
     def extract_employee_email_from_request(self, email_text: str) -> Optional[str]:

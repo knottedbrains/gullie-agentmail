@@ -88,7 +88,7 @@ def get_clarification_request(unclear_field: str) -> tuple[str, str]:
     
     field_questions = {
         "pickup_address": "your pickup address",
-        "puckup_date": "your pickup date",
+        "pickup_date": "your pickup date",
         "delivery_address": "your delivery address",
         "needs_box": "whether you need boxes (yes or no)",
         "needs_packing_help": "whether you need help with packing (yes or no)",

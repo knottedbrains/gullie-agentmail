@@ -183,3 +183,34 @@ email: {
 }
 
 
+
+
+questions:
+1. employer email to initiate move or employee? (could be a button/endpoint)
+2. step 5 vs step 6? 
+3. step 7 vs step 8? (1 email could generate 2 emails, one back to employee, one back to vendor)
+
+
+hi,
+Thanks for reaching out. Here are the info.
+1. pickup address: 300 3rd street, san francisco2. pickup date: Jan 6th, 20263. delivery address: 140 Schermerhorn St, Brooklyn, NY 112014. boxes: no5. need help: yes6. yes opt-in for insurance.
+Best,
+jolie
+
+
+
+# test 1 
+# provide all info and no questions (tested)
+
+# test 2
+# provide all info with questions (todo)
+
+# test 3
+# provide info with missing, (pikup context from the input, need to feed the email chain into context? )
+
+# agent: follow up email asking for info
+
+
+TODO: 
+1. how can I have the context of the input email? 
+2. how can i have the context on emails before? (as a summary?)

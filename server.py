@@ -3,27 +3,32 @@
 FastAPI Server - REST API for Gullie Email Orchestrator
 """
 
-import base64
+import asyncio
 import json
 import os
-from typing import Optional
+from typing import Optional, Set
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, HTTPException
 from googleapiclient.discovery import build
 from pydantic import BaseModel
 
 from orchestrator import Orchestrator
 from email_parser import EmailParser
-from send_email import get_credentials, fetch_email_by_id, fetch_latest_email
+from send_email import get_credentials, fetch_email_by_id, fetch_recent_emails
 
 
-app = FastAPI(title="Gullie Email Orchestrator API", version="1.0.0")
+# Configuration from environment variables
+EMPLOYEE_EMAIL_FILTER = os.getenv('EMPLOYEE_EMAIL_FILTER', 'ninan980805@gmail.com')  # Optional: filter for specific employee
+COMPANY_NAME_FILTER = os.getenv('COMPANY_NAME_FILTER', 'cluely')  # Optional: filter for specific company
+POLL_INTERVAL = int(os.getenv('POLL_INTERVAL', 60))  # Poll every 60 seconds
+MAX_EMAILS_PER_POLL = int(os.getenv('MAX_EMAILS_PER_POLL', 5))  # Check last 5 emails
 
-# Global services (initialized on startup)
+# Global services
 orchestrator: Optional[Orchestrator] = None
 email_parser: Optional[EmailParser] = None
 gmail_service = None
+processed_email_ids: Set[str] = set()  # Track processed emails
 
 
 # Request/Response models
@@ -35,17 +40,81 @@ class ProcessEmailRequest(BaseModel):
     message_id: Optional[str] = None
 
 
-class WebhookNotification(BaseModel):
-    message: Optional[dict] = None
-    historyId: Optional[str] = None
-    messageId: Optional[str] = None
+async def poll_emails_task():
+    """Background task that polls emails every minute."""
+    global processed_email_ids
+    
+    while True:
+        try:
+            await asyncio.sleep(POLL_INTERVAL)
+            
+            if not gmail_service or not orchestrator or not email_parser:
+                print("⚠️  Services not initialized, skipping poll")
+                continue
+            
+            print(f"\n🔄 Polling for new emails (checking last {MAX_EMAILS_PER_POLL} emails)...")
+            
+            emails = fetch_recent_emails(gmail_service, max_results=MAX_EMAILS_PER_POLL)
+            
+            if not emails:
+                print("📭 No emails found")
+                continue
+            
+            for email in emails:
+                email_id = email.get('id')
+                
+                # Skip if already processed
+                if email_id in processed_email_ids:
+                    continue
+                
+                print(f"\n📧 Processing email: {email.get('subject', 'No Subject')}")
+                print(f"   From: {email.get('from', 'Unknown')}")
+                
+                # Check if email is relevant using LLM filter
+                email_text = f"{email.get('subject', '')}\n\n{email.get('body', '')}"
+                
+                employee_filter = EMPLOYEE_EMAIL_FILTER if EMPLOYEE_EMAIL_FILTER else None
+                company_filter = COMPANY_NAME_FILTER if COMPANY_NAME_FILTER else None
+                
+                is_relevant = email_parser.is_relevant_to_shipping_moving(
+                    email_text,
+                    employee_email=employee_filter,
+                    company_name=company_filter
+                )
+                
+                if not is_relevant:
+                    print("⏭️  Email not relevant to shipping/moving, skipping...")
+                    processed_email_ids.add(email_id)  # Mark as processed to avoid re-checking
+                    continue
+                
+
+                print("✅ Email is relevant, processing...")
+                
+                # Double-check if email has been processed (in case it was processed between checks)
+                if email_id in processed_email_ids:
+                    print("⏭️  Email already processed, skipping...")
+                    continue
+                
+                # Process as regular email
+                success = orchestrator.process_incoming_email(email)
+                if success:
+                    processed_email_ids.add(email_id)
+                    print("✅ Email processed successfully")
+                else:
+                    print("⚠️  Email processing had issues")
+                        
+        except Exception as e:
+            print(f"❌ Error during email polling: {e}")
+            import traceback
+            traceback.print_exc()
 
 
-@app.on_event("startup")
-async def startup_event():
-    """Initialize services on server startup."""
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Manage application lifespan - startup and shutdown."""
     global orchestrator, email_parser, gmail_service
     
+    # Startup
     try:
         print("🔐 Authenticating with Gmail...")
         creds = get_credentials()
@@ -53,11 +122,38 @@ async def startup_event():
         print("✅ Authenticated successfully")
         
         orchestrator = Orchestrator(gmail_service)
-        email_parser = EmailParser()
+        email_parser = EmailParser(gmail_service=gmail_service)
         print("✅ Services initialized")
+        
+        # Print configuration
+        print(f"\n📋 Configuration:")
+        print(f"   Poll interval: {POLL_INTERVAL} seconds")
+        print(f"   Emails per poll: {MAX_EMAILS_PER_POLL}")
+        if EMPLOYEE_EMAIL_FILTER:
+            print(f"   Employee filter: {EMPLOYEE_EMAIL_FILTER}")
+        if COMPANY_NAME_FILTER:
+            print(f"   Company filter: {COMPANY_NAME_FILTER}")
+        print()
+        
+        # Start background polling task
+        poll_task = asyncio.create_task(poll_emails_task())
+        print("🔄 Email polling started")
+        
     except Exception as e:
         print(f"❌ Failed to initialize services: {e}")
         raise
+    
+    yield
+    
+    # Shutdown
+    print("🛑 Shutting down...")
+
+
+app = FastAPI(
+    title="Gullie Email Orchestrator API",
+    version="1.0.0",
+    lifespan=lifespan
+)
 
 
 @app.get("/health")
@@ -66,7 +162,12 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "gullie-orchestrator",
-        "gmail_connected": gmail_service is not None
+        "gmail_connected": gmail_service is not None,
+        "processed_emails": len(processed_email_ids),
+        "poll_interval": POLL_INTERVAL,
+        "max_emails_per_poll": MAX_EMAILS_PER_POLL,
+        "employee_filter": EMPLOYEE_EMAIL_FILTER or "none",
+        "company_filter": COMPANY_NAME_FILTER or "none"
     }
 
 
@@ -95,119 +196,77 @@ async def initiate_case_endpoint(request: InitiateCaseRequest):
 
 @app.post("/api/v1/process/email")
 async def process_email_endpoint(request: ProcessEmailRequest):
-    """Process a specific email by message ID, or latest email if no ID provided."""
+    """Process a specific email by message ID, or all recent emails if no ID provided."""
     if not orchestrator or not gmail_service:
         raise HTTPException(status_code=503, detail="Services not initialized")
     
     try:
         if request.message_id:
+            # Process single email by ID
             email = fetch_email_by_id(gmail_service, request.message_id)
             if not email:
                 raise HTTPException(
                     status_code=404,
                     detail=f"Email {request.message_id} not found"
                 )
+            emails_to_process = [email]
         else:
-            email = fetch_latest_email(gmail_service)
-            if not email:
+            # Process all recent emails
+            emails_to_process = fetch_recent_emails(gmail_service, max_results=MAX_EMAILS_PER_POLL)
+            if not emails_to_process:
                 raise HTTPException(status_code=404, detail="No emails found")
         
-        # Check if it's a move initiation request
-        email_text = f"{email.get('subject', '')}\n\n{email.get('body', '')}"
+        employee_filter = EMPLOYEE_EMAIL_FILTER if EMPLOYEE_EMAIL_FILTER else None
+        company_filter = COMPANY_NAME_FILTER if COMPANY_NAME_FILTER else None
         
-        if email_parser.is_move_initiation_request(email_text):
-            employee_email = email_parser.extract_employee_email_from_request(email_text)
-            if employee_email:
-                success = orchestrator.initiate_case(employee_email)
-                return {
-                    "status": "success",
-                    "action": "initiated_case",
-                    "employee_email": employee_email,
-                    "message": f"Move initiation detected and case started for {employee_email}"
-                }
-            else:
-                return {
-                    "status": "partial",
-                    "action": "detected_initiation",
-                    "message": "Move initiation detected but could not extract employee email"
-                }
-        else:
-            # Process as regular email
-            success = orchestrator.process_incoming_email(email)
-            return {
-                "status": "success" if success else "partial",
-                "action": "processed_email",
-                "message_id": email.get('id'),
-                "message": "Email processed successfully" if success else "Email processing had issues"
+        results = []
+        
+        for email in emails_to_process:
+            email_id = email.get('id')
+            email_result = {
+                "message_id": email_id,
+                "subject": email.get('subject', 'No Subject'),
+                "from": email.get('from', 'Unknown')
             }
+            
+            # Check if email is relevant using LLM filter
+            email_text = f"{email.get('subject', '')}\n\n{email.get('body', '')}"
+            
+            is_relevant = email_parser.is_relevant_to_shipping_moving(
+                email_text,
+                employee_email=employee_filter,
+                company_name=company_filter
+            )
+            
+            if not is_relevant:
+                email_result.update({
+                    "status": "skipped",
+                    "action": "filtered_out",
+                    "message": "Email not relevant to shipping/moving based on filters"
+                })
+                results.append(email_result)
+                continue
+            else:
+                # Process as regular email
+                success = orchestrator.process_incoming_email(email)
+                email_result.update({
+                    "status": "success" if success else "partial",
+                    "action": "processed_email",
+                    "message": "Email processed successfully" if success else "Email processing had issues"
+                })
+            
+            results.append(email_result)
+        
+        return {
+            "status": "success",
+            "processed_count": len(results),
+            "results": results
+        }
             
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.post("/webhook/gmail")
-async def gmail_webhook(notification: WebhookNotification):
-    """Handle Gmail push notification webhook."""
-    if not orchestrator or not gmail_service:
-        raise HTTPException(status_code=503, detail="Services not initialized")
-    
-    try:
-        message_id = None
-        
-        # Handle different notification formats
-        if notification.message and 'data' in notification.message:
-            # Decode base64 message ID
-            message_id = base64.urlsafe_b64decode(
-                notification.message['data']
-            ).decode('utf-8')
-        elif notification.messageId:
-            message_id = notification.messageId
-        elif notification.historyId:
-            # History notification - process latest email
-            email = fetch_latest_email(gmail_service)
-            if email:
-                message_id = email.get('id')
-        
-        if message_id:
-            email = fetch_email_by_id(gmail_service, message_id)
-            if email:
-                email_text = f"{email.get('subject', '')}\n\n{email.get('body', '')}"
-                
-                if email_parser.is_move_initiation_request(email_text):
-                    employee_email = email_parser.extract_employee_email_from_request(email_text)
-                    if employee_email:
-                        orchestrator.initiate_case(employee_email)
-                        return {
-                            "status": "success",
-                            "action": "initiated_case",
-                            "employee_email": employee_email
-                        }
-                else:
-                    orchestrator.process_incoming_email(email)
-                    return {
-                        "status": "success",
-                        "action": "processed_email"
-                    }
-        
-        return {"status": "success", "message": "Notification received"}
-        
-    except Exception as e:
-        print(f"❌ Error processing webhook: {e}")
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(status_code=500, detail=str(e))
-
-
-@app.get("/webhook/gmail")
-async def webhook_verification(request: Request):
-    """Handle webhook verification (Gmail requires this for initial setup)."""
-    challenge = request.query_params.get('challenge')
-    if challenge:
-        print(f"✅ Webhook verification challenge: {challenge}")
-        return challenge
-    return {"status": "ok"}
 
 
 @app.get("/api/v1/state")
@@ -258,7 +317,11 @@ if __name__ == '__main__':
     print(f"🚀 Starting Gullie Orchestrator API server")
     print(f"📡 Server: http://{host}:{port}")
     print(f"📚 API docs: http://{host}:{port}/docs")
-    print(f"🔗 Webhook: http://{host}:{port}/webhook/gmail")
+    print(f"\n💡 Configuration via environment variables:")
+    print(f"   EMPLOYEE_EMAIL_FILTER - Filter emails for specific employee")
+    print(f"   COMPANY_NAME_FILTER - Filter emails for specific company")
+    print(f"   POLL_INTERVAL - Poll interval in seconds (default: 60)")
+    print(f"   MAX_EMAILS_PER_POLL - Number of emails to check per poll (default: 5)")
     
     uvicorn.run(app, host=host, port=port)
 

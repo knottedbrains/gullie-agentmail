@@ -53,9 +53,10 @@ def test_email_parser():
     # Test address extraction
     test_text = """
     Hi! My pickup address is 123 Main Street, New York, NY 10001.
+    Pickup date is Jan 5th, 2026
     I need to deliver to 456 Oak Avenue, Los Angeles, CA 90001.
     """
-    addresses = parser.extract_addresses(test_text)
+    addresses = parser.extract_addresses_and_dates(test_text)
     print(f"✅ Extracted addresses: {addresses}")
     
     # Test yes/no extraction
@@ -94,6 +95,7 @@ def test_decision_engine():
     # Test with partial data
     sm.update_milestone_data(employee_email, 1, {
         "pickup_address": "123 Main St",
+        "pickup_date": "Jan 5th, 2026",
         "delivery_address": "456 Oak Ave"
     })
     case = sm.get_case(employee_email)
@@ -103,6 +105,7 @@ def test_decision_engine():
     # Test completion check
     sm.update_milestone_data(employee_email, 1, {
         "pickup_address": "123 Main St",
+        "pickup_date": "Jan 5th, 2026",
         "delivery_address": "456 Oak Ave",
         "needs_box": True,
         "needs_packing_help": False,
@@ -136,6 +139,7 @@ def test_with_mock_email():
         Hi Gullie,
         
         My pickup address is: 123 Main Street, New York, NY 10001
+        My pickup date is: Jan 6th, 2026
         Delivery address: 456 Oak Avenue, Los Angeles, CA 90001
         
         Yes, I need boxes.

@@ -103,13 +103,50 @@ def load_openai_api_key(credentials_file: str = 'credentials.json') -> str:
     )
 
 
-def create_message(to, subject, body):
-    """Create a message for an email."""
+def create_message(to, subject, body, thread_id=None, in_reply_to_message_id=None, service=None):
+    """Create a message for an email. Optionally reply to an existing thread.
+    
+    Args:
+        to: Recipient email address
+        subject: Email subject
+        body: Email body
+        thread_id: Gmail thread ID to reply in
+        in_reply_to_message_id: Message-ID header of the email being replied to
+        service: Gmail service (optional, used to fetch latest message if thread_id provided)
+    
+    Note: For proper threading, we need the Message-ID of the latest message in the thread.
+    If thread_id is provided but in_reply_to_message_id is not, we'll try to fetch it.
+    """
     message = MIMEText(body)
     message['to'] = to
     message['subject'] = subject
+    
+    # If we have a thread_id but no message_id, try to get the latest message in the thread
+    if thread_id and not in_reply_to_message_id and service:
+        latest_msg = get_latest_message_in_thread(service, thread_id)
+        if latest_msg and latest_msg.get('message_id_header'):
+            in_reply_to_message_id = latest_msg['message_id_header']
+            print(f"📧 Using Message-ID from latest message in thread: {in_reply_to_message_id[:50]}...")
+    
+    # If replying to a message, add proper reply headers (this is what actually makes it thread)
+    if in_reply_to_message_id:
+        # Message-ID should already be in angle brackets, but ensure it is
+        if not in_reply_to_message_id.startswith('<'):
+            in_reply_to_message_id = f'<{in_reply_to_message_id}>'
+        
+        message['In-Reply-To'] = in_reply_to_message_id
+        message['References'] = in_reply_to_message_id
+        print(f"📎 Added In-Reply-To header: {in_reply_to_message_id[:50]}...")
+    
     raw_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
-    return {'raw': raw_message}
+    
+    result = {'raw': raw_message}
+    
+    # Include threadId if provided (helps Gmail associate it, but headers are what actually thread it)
+    if thread_id:
+        result['threadId'] = thread_id
+    
+    return result
 
 
 # TODO: human in the loop
@@ -120,6 +157,7 @@ def send_message(service, user_id, message, real_run = False):
             message = service.users().messages().send(
                 userId=user_id, body=message).execute()
             print(f'Message Id: {message["id"]}')
+            print(f"Thread Id: {message['threadId']}")
             return message
         else:
             print(message)
@@ -178,34 +216,116 @@ def fetch_email_by_id(service, message_id: str):
         sender = header_map.get('from', '(Unknown Sender)')
         snippet = message.get('snippet', '').strip()
         body_text = extract_plain_text(message.get('payload', {}))
+        
+        # Include threadId and internalDate for thread handling
+        thread_id = message.get('threadId')
+        internal_date = message.get('internalDate')
+        message_id_header = header_map.get('message-id', '')
 
         return {
             'id': message_id,
             'subject': subject,
             'from': sender,
             'snippet': snippet,
-            'body': body_text or snippet
+            'body': body_text or snippet,
+            'threadId': thread_id,
+            'internalDate': internal_date,
+            'message_id_header': message_id_header
         }
     except HttpError as error:
         print(f'❌ Error fetching email {message_id}: {error}')
         return None
 
 
-def fetch_latest_email(service):
-    """Retrieve the most recent email from the user's inbox."""
+def get_latest_message_in_thread(service, thread_id: str):
+    """Get the latest message in a thread to extract its Message-ID for replying."""
+    try:
+        thread_messages = fetch_thread_messages(service, thread_id)
+        if not thread_messages:
+            return None
+        
+        # Find the message with the highest internalDate (most recent)
+        latest_message = max(
+            thread_messages,
+            key=lambda msg: int(msg.get('internalDate', 0))
+        )
+        
+        # Fetch full message details to get headers
+        message_id = latest_message['id']
+        return fetch_email_by_id(service, message_id)
+    except Exception as e:
+        print(f'⚠️  Error getting latest message in thread: {e}')
+        return None
+
+
+def fetch_thread_messages(service, thread_id: str):
+    """Fetch all messages in a thread."""
+    try:
+        thread = service.users().threads().get(
+            userId='me',
+            id=thread_id,
+            format='full'
+        ).execute()
+        
+        messages = thread.get('messages', [])
+        return messages
+    except HttpError as error:
+        print(f'❌ Error fetching thread {thread_id}: {error}')
+        return []
+
+
+def is_latest_in_thread(service, email: Dict) -> bool:
+    """Check if the given email is the latest message in its thread."""
+    thread_id = email.get('threadId')
+    if not thread_id:
+        # No thread ID means it's a standalone email, so it's the "latest"
+        return True
+    
+    current_internal_date = email.get('internalDate')
+    if not current_internal_date:
+        # Can't determine, assume it's latest to be safe
+        return True
+    
+    # Fetch all messages in the thread
+    thread_messages = fetch_thread_messages(service, thread_id)
+    if not thread_messages:
+        return True
+    
+    # Find the message with the highest internalDate
+    latest_date = max(
+        (msg.get('internalDate', 0) for msg in thread_messages),
+        default=0
+    )
+    
+    # Check if current email is the latest
+    return int(current_internal_date) >= int(latest_date)
+
+
+def fetch_recent_emails(service, max_results: int = 5):
+    """Retrieve recent emails from the user's inbox."""
     messages_response = service.users().messages().list(
         userId='me',
-        maxResults=1,
+        maxResults=max_results,
         q='in:inbox'
     ).execute()
 
     messages = messages_response.get('messages', [])
     if not messages:
-        print("📭 Inbox is empty.")
-        return None
+        return []
 
-    message_id = messages[0]['id']
-    return fetch_email_by_id(service, message_id)
+    emails = []
+    for msg in messages:
+        email = fetch_email_by_id(service, msg['id'])
+        if email:
+            emails.append(email)
+    
+    return emails
+
+
+def fetch_latest_email(service):
+    """Retrieve the most recent email from the user's inbox."""
+    emails = fetch_recent_emails(service, max_results=1)
+    return emails[0] if emails else None
 
 
 def summarize_email_content(content: Dict, client: OpenAI) -> str:
