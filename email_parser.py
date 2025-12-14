@@ -53,7 +53,7 @@ class EmailParser:
         # In production, you'd maintain a list of known vendors
         return "employee"
     
-    def extract_fields(self, text: str, context: str, fields: Optional[Dict[str, str]] = None) -> Dict[str, Optional[Any]]:
+    def extract_fields(self, text: str, context: str) -> Dict[str, Optional[Any]]:
         """Use LLM to extract fields from text based on context.
         
         The context determines what fields to look for, and the text provides the actual values.
@@ -61,63 +61,49 @@ class EmailParser:
         Args:
             text: The text to extract field values from
             context: Context that describes what fields/information we're looking for.
-                     This could be a conversation summary, milestone description, or field definitions.
-            fields: Optional explicit field definitions. If provided, these will be used.
-                    If None, fields will be inferred from the context.
-                    Example: {
-                        "pickup_address": "pickup address including street, city, state, zip",
-                        "pickup_date": "pickup date in YYYY-MM-DD format"
-                    }
+                     The only possible fields are: pickup_address, pickup_date, delivery_address, needs_box, needs_packing_help, insurance_opted_in
         
         Returns:
             Dictionary with extracted field values (None if not found)
+            Only these fields will be returned: pickup_address, pickup_date, delivery_address, needs_box, needs_packing_help, insurance_opted_in
         """
         if not context:
             print("⚠️  No context provided for field extraction")
             return {}
         
-        # Step 1: Determine what fields to extract from context
-        if fields:
-            # Use explicitly provided fields
-            field_descriptions = []
-            for field_name, field_desc in fields.items():
-                field_descriptions.append(f"- '{field_name}': {field_desc}")
-            fields_list = "\n".join(field_descriptions)
-            field_names = list(fields.keys())
-        else:
-            # Infer fields from context
-            inference_prompt = (
-                f"Based on the following context, identify what specific fields or pieces of information "
-                f"need to be extracted from user responses. "
-                f"Return a JSON object where each key is a field name and each value is a description of what that field represents.\n\n"
-                f"Context:\n{context[:2000]}\n\n"
-                f"Example output format:\n"
-                f'{{"pickup_address": "pickup address including street, city, state, zip", "pickup_date": "pickup date"}}\n\n'
-                f"Only include fields that are relevant to the context. Return only valid JSON."
+
+        inference_prompt = (
+            f"Based on the following context, identify what specific fields or pieces of information "
+            f"need to be extracted from user responses. "
+            f"Return a JSON object where each key is a field name and each value is a description of what that field represents.\n\n"
+            f"Context:\n{context[:2000]}\n\n"
+            f"Example output format:\n"
+            f'{{"pickup_address": "pickup address including street, city, state, zip", "pickup_date": "pickup date"}}\n\n'
+            f"Only include fields that are relevant to the context. Return only valid JSON. Only these possible fields : pickup_address, pickup_date, delivery_address, needs_box, needs_packing_help, insurance_opted_in"
+        )
+            
+        try:
+            inference_response = self.client.responses.create(
+                model="gpt-4o-mini",
+                input=inference_prompt
             )
             
-            try:
-                inference_response = self.client.responses.create(
-                    model="gpt-4o-mini",
-                    input=inference_prompt
-                )
-                
-                inference_text = inference_response.output[0].content[0].text.strip()
-                
-                # Extract JSON from inference response
-                json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', inference_text, re.DOTALL)
-                if json_match:
-                    fields = json.loads(json_match.group())
-                    field_names = list(fields.keys())
-                    field_descriptions = [f"- '{k}': {v}" for k, v in fields.items()]
-                    fields_list = "\n".join(field_descriptions)
-                    print(f"📋 Inferred {len(field_names)} fields from context: {', '.join(field_names)}")
-                else:
-                    print("⚠️  Could not infer fields from context, returning empty result")
-                    return {}
-            except Exception as e:
-                print(f"⚠️  Error inferring fields from context: {e}")
+            inference_text = inference_response.output[0].content[0].text.strip()
+            
+            # Extract JSON from inference response
+            json_match = re.search(r'\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}', inference_text, re.DOTALL)
+            if json_match:
+                fields = json.loads(json_match.group())
+                field_names = list(fields.keys())
+                field_descriptions = [f"- '{k}': {v}" for k, v in fields.items()]
+                fields_list = "\n".join(field_descriptions)
+                print(f"📋 Inferred {len(field_names)} fields from context: {', '.join(field_names)}")
+            else:
+                print("⚠️  Could not infer fields from context, returning empty result")
                 return {}
+        except Exception as e:
+            print(f"⚠️  Error inferring fields from context: {e}")
+            return {}
         
         # Step 2: Extract the field values from the text
         prompt = (
@@ -153,27 +139,14 @@ class EmailParser:
         # Return None for all fields if extraction failed
         return {field: None for field in field_names}
     
-    def extract_addresses_and_dates(self, text: str, context: str = "") -> Dict[str, Optional[str]]:
+    def extract_addresses_dates_and_yes_no_responses(self, text: str, context: str = "") -> Dict[str, Optional[str]]:
         """Use LLM to extract pickup and delivery addresses from text.
         
         This is a convenience wrapper around extract_fields() for backward compatibility.
         If context is provided, it will be used to infer fields. Otherwise, default fields are used.
         """
-        # If context is provided, let it infer fields. Otherwise use default fields.
-        if context:
-            return self.extract_fields(text, context)
-        else:
-            # Default fields for backward compatibility
-            fields = {
-                "pickup_address": "pickup address including street, city, state, and zip code if available",
-                "pickup_date": "pickup date in YYYY-MM-DD format or any date format mentioned",
-                "delivery_address": "delivery address including street, city, state, and zip code if available",
-                "needs_box": "yes or no",
-                "needs_packing_help": "yes or no",
-                "insurance_opted_in": "yes or no"
-            }
-            
-            return self.extract_fields(text, "Extract pickup and delivery addresses and pickup date", fields)
+
+        return self.extract_fields(text, context)
     
     def extract_yes_no_response(self, text: str, question_type: str) -> Optional[bool]:
         """Extract boolean answer from text for yes/no questions."""
@@ -323,29 +296,9 @@ class EmailParser:
         }
         
         # Extract addresses
-        addresses = self.extract_addresses_and_dates(text, context)
+        addresses = self.extract_addresses_dates_and_yes_no_responses(text, context)
         result.update(addresses)
-        
-        # Extract yes/no responses
-        # Look for context around box, packing, insurance
-        box_context = self._extract_context(text, ['box', 'boxes', 'packing box'])
-        if box_context:
-            result["needs_box"] = self.extract_yes_no_response(
-                box_context, "Do you need boxes?"
-            )
-        
-        packing_context = self._extract_context(text, ['packing', 'help packing', 'packing help'])
-        if packing_context:
-            result["needs_packing_help"] = self.extract_yes_no_response(
-                packing_context, "Do you need help packing?"
-            )
-        
-        insurance_context = self._extract_context(text, ['insurance', 'insure', 'coverage'])
-        if insurance_context:
-            result["insurance_opted_in"] = self.extract_yes_no_response(
-                insurance_context, "Do you want to opt-in for insurance?"
-            )
-        
+
         return result
     
     def _extract_context(self, text: str, keywords: list) -> Optional[str]:
